@@ -9,6 +9,7 @@ import { BacklogTrackerView } from './components/BacklogTrackerView';
 import { SubjectDashboardView } from './components/SubjectDashboardView';
 import { ScheduleEditorView } from './components/ScheduleEditorView';
 import { WeeklyReviewView } from './components/WeeklyReviewView';
+import { FocusReflectionModal } from './components/FocusReflectionModal';
 
 const MainContent: React.FC = () => {
   const { activeTab } = useApp();
@@ -23,6 +24,7 @@ const MainContent: React.FC = () => {
       {activeTab === 'subjects' && <SubjectDashboardView />}
       {activeTab === 'schedule' && <ScheduleEditorView />}
       {activeTab === 'review' && <WeeklyReviewView />}
+      <FocusReflectionModal />
     </main>
   );
 };

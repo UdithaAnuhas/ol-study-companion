@@ -44,11 +44,15 @@ interface AppContextType {
   timerPresetMins: number;
   timerSelectedSubjectId: string;
   timerCompletedSessionsCount: number;
+  pendingReflectionSession: FocusSession | null;
+  setPendingReflectionSession: (session: FocusSession | null) => void;
   setTimerSelectedSubjectId: (id: string) => void;
   startFocusTimer: () => void;
   pauseFocusTimer: () => void;
   resetFocusTimer: () => void;
+  completeFocusTimerEarly: () => void;
   setFocusTimerPreset: (mins: number) => void;
+  saveSessionReflection: (sessionId: string, notes: string, focusRating: number) => void;
 
   // Actions
   toggleBlockCompletion: (date: string, blockId: string) => void;
@@ -127,6 +131,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     savedState?.subjects?.find((s: Subject) => !s.isFinished)?.id || INITIAL_SUBJECTS.find((s) => !s.isFinished)?.id || ''
   );
   const [timerCompletedSessionsCount, setTimerCompletedSessionsCount] = useState<number>(0);
+  const [pendingReflectionSession, setPendingReflectionSession] = useState<FocusSession | null>(null);
 
   // Global background Focus Timer interval
   useEffect(() => {
@@ -141,15 +146,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       triggerConfetti();
       setTimerCompletedSessionsCount((prev) => prev + 1);
 
-      // Log completed session
+      // Log completed session and trigger reflection modal
       if (timerSelectedSubjectId) {
-        addFocusSession({
+        const newSession: FocusSession = {
           id: `fs-${Date.now()}`,
           subjectId: timerSelectedSubjectId,
           startedAt: new Date().toISOString(),
           durationMinutes: timerPresetMins,
           completed: true,
-        });
+          notes: '',
+          focusRating: 5,
+        };
+        addFocusSession(newSession);
+        setPendingReflectionSession(newSession);
       }
     }
     return () => clearInterval(interval);
@@ -162,11 +171,52 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTimerSecondsLeft(timerPresetMins * 60);
     setTimerTotalSeconds(timerPresetMins * 60);
   };
+  const completeFocusTimerEarly = () => {
+    setTimerIsRunning(false);
+    audioSynth.playCompletionChime();
+    triggerConfetti();
+    setTimerCompletedSessionsCount((prev) => prev + 1);
+
+    const elapsedSeconds = timerTotalSeconds - timerSecondsLeft;
+    const elapsedMinutes = Math.max(1, Math.round(elapsedSeconds / 60));
+
+    if (timerSelectedSubjectId) {
+      const newSession: FocusSession = {
+        id: `fs-${Date.now()}`,
+        subjectId: timerSelectedSubjectId,
+        startedAt: new Date().toISOString(),
+        durationMinutes: elapsedMinutes,
+        completed: true,
+        notes: '',
+        focusRating: 5,
+      };
+      addFocusSession(newSession);
+      setPendingReflectionSession(newSession);
+    }
+    resetFocusTimer();
+  };
   const setFocusTimerPreset = (mins: number) => {
     setTimerPresetMins(mins);
     setTimerTotalSeconds(mins * 60);
     setTimerSecondsLeft(mins * 60);
     setTimerIsRunning(false);
+  };
+  const saveSessionReflection = (sessionId: string, notes: string, focusRating: number) => {
+    const todayStr = getFormattedDateString();
+    setDailyLogs((prev) => {
+      const currentLog = prev[todayStr];
+      if (!currentLog) return prev;
+      const updatedSessions = currentLog.focusSessions.map((fs) =>
+        fs.id === sessionId ? { ...fs, notes, focusRating } : fs
+      );
+      return {
+        ...prev,
+        [todayStr]: {
+          ...currentLog,
+          focusSessions: updatedSessions,
+        },
+      };
+    });
   };
 
   // Re-compute rotation day every 60 seconds to auto-advance at midnight
@@ -548,11 +598,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         timerPresetMins,
         timerSelectedSubjectId,
         timerCompletedSessionsCount,
+        pendingReflectionSession,
+        setPendingReflectionSession,
         setTimerSelectedSubjectId,
         startFocusTimer,
         pauseFocusTimer,
         resetFocusTimer,
+        completeFocusTimerEarly,
         setFocusTimerPreset,
+        saveSessionReflection,
       }}
     >
       {children}

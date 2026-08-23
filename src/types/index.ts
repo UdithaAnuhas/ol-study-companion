@@ -32,6 +32,8 @@ export interface FocusSession {
   startedAt: string; // ISO string
   durationMinutes: number;
   completed: boolean;
+  notes?: string;       // What was accomplished in this session
+  focusRating?: number; // 1 to 5 star rating of focus quality
 }
 
 export interface BlockCompletionRecord {
