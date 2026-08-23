@@ -125,17 +125,17 @@ export const ScheduleEditorView: React.FC = () => {
           <button
             onClick={handleExportJSON}
             className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-950/70 hover:bg-blue-900/80 text-blue-200 border border-blue-500/40 text-xs font-bold transition shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
-            title="Download JSON backup file"
+            title="Export and download JSON backup file"
           >
-            <Download className="w-4 h-4 text-blue-400" />
+            <Upload className="w-4 h-4 text-blue-400" />
             <span>Export JSON</span>
           </button>
 
           <label
             className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-cyan-950/70 hover:bg-cyan-900/80 text-cyan-200 border border-cyan-500/40 text-xs font-bold cursor-pointer transition shadow-sm hover:scale-105 active:scale-95"
-            title="Restore from JSON backup file"
+            title="Import and load JSON backup file"
           >
-            <Upload className="w-4 h-4 text-cyan-400" />
+            <Download className="w-4 h-4 text-cyan-400" />
             <span>Import JSON</span>
             <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
           </label>
