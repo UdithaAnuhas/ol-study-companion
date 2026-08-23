@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, RotateCcw, CheckCircle2, Star, MessageSquare, Flame, Clock } from 'lucide-react';
+import { Play, Pause, RotateCcw, CheckCircle2, Star, MessageSquare, Flame, Clock, Trash2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getFormattedDateString } from '../utils/scheduleEngine';
 
@@ -11,14 +11,14 @@ export const FocusTimerView: React.FC = () => {
     timerIsRunning,
     timerPresetMins,
     timerSelectedSubjectId,
-    timerCompletedSessionsCount,
     setTimerSelectedSubjectId,
     startFocusTimer,
     pauseFocusTimer,
     resetFocusTimer,
-    completeFocusTimerEarly,
     setFocusTimerPreset,
     dailyLogs,
+    deleteFocusSession,
+    clearTodayFocusSessions,
   } = useApp();
 
   const selectedSubject = subjects.find((s) => s.id === timerSelectedSubjectId);
@@ -236,14 +236,32 @@ export const FocusTimerView: React.FC = () => {
 
       {/* TODAY'S FOCUS SESSIONS REFLECTION FEED */}
       <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-4 shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
           <h3 className="text-base font-bold text-slate-200 flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-blue-400" />
             <span>Today's Focus Log & Reflection Notes</span>
           </h3>
-          <span className="text-xs font-mono font-bold text-slate-400">
-            {todaySessions.length} Session{todaySessions.length === 1 ? '' : 's'} Logged
-          </span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono font-bold text-slate-400">
+              {todaySessions.length} Session{todaySessions.length === 1 ? '' : 's'} Logged
+            </span>
+
+            {todaySessions.length > 0 && (
+              <button
+                onClick={() => {
+                  if (window.confirm('Clear all focus sessions logged today?')) {
+                    clearTodayFocusSessions();
+                  }
+                }}
+                className="text-xs text-rose-400 hover:text-rose-300 font-bold px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition flex items-center gap-1"
+                title="Clear all test sessions"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear All Logs</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {todaySessions.length > 0 ? (
@@ -258,7 +276,7 @@ export const FocusTimerView: React.FC = () => {
               return (
                 <div
                   key={session.id || idx}
-                  className="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-2.5 flex flex-col justify-between"
+                  className="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-2.5 flex flex-col justify-between group hover:border-slate-700 transition"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -291,11 +309,22 @@ export const FocusTimerView: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
-                      <span>{sessionTime}</span>
-                      <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-300 font-bold border border-blue-500/20">
-                        {session.durationMinutes} mins
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                        <span>{sessionTime}</span>
+                        <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-300 font-bold border border-blue-500/20">
+                          {session.durationMinutes} mins
+                        </span>
+                      </div>
+
+                      {/* Delete Individual Session Button */}
+                      <button
+                        onClick={() => deleteFocusSession(session.id)}
+                        className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                        title="Delete this test session"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
 

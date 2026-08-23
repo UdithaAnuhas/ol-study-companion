@@ -57,6 +57,8 @@ interface AppContextType {
   // Actions
   toggleBlockCompletion: (date: string, blockId: string) => void;
   addFocusSession: (session: FocusSession) => void;
+  deleteFocusSession: (sessionId: string) => void;
+  clearTodayFocusSessions: () => void;
   updateSubject: (subject: Subject) => void;
   addSubject: (subject: Subject) => void;
   deleteSubject: (subjectId: string) => void;
@@ -422,6 +424,38 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
+  const deleteFocusSession = (sessionId: string) => {
+    const todayStr = getFormattedDateString();
+    setDailyLogs((prev) => {
+      const currentLog = prev[todayStr];
+      if (!currentLog) return prev;
+      return {
+        ...prev,
+        [todayStr]: {
+          ...currentLog,
+          focusSessions: currentLog.focusSessions.filter((fs) => fs.id !== sessionId),
+        },
+      };
+    });
+    setTimerCompletedSessionsCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const clearTodayFocusSessions = () => {
+    const todayStr = getFormattedDateString();
+    setDailyLogs((prev) => {
+      const currentLog = prev[todayStr];
+      if (!currentLog) return prev;
+      return {
+        ...prev,
+        [todayStr]: {
+          ...currentLog,
+          focusSessions: [],
+        },
+      };
+    });
+    setTimerCompletedSessionsCount(0);
+  };
+
   const updateSubject = (updatedSubject: Subject) => {
     setSubjects((prev) =>
       prev.map((s) => (s.id === updatedSubject.id ? updatedSubject : s))
@@ -580,6 +614,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         cloudSyncStatus,
         toggleBlockCompletion,
         addFocusSession,
+        deleteFocusSession,
+        clearTodayFocusSessions,
         updateSubject,
         addSubject,
         deleteSubject,
