@@ -575,7 +575,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setSubjects(parsed.subjects);
         setSchedule(parsed.schedule);
         if (parsed.dailyLogs && typeof parsed.dailyLogs === 'object' && !Array.isArray(parsed.dailyLogs)) {
-          setDailyLogs(parsed.dailyLogs);
+          setDailyLogs(sanitizeDailyLogs(parsed.dailyLogs));
         }
         if (parsed.theme === 'dark' || parsed.theme === 'light') {
           setThemeState(parsed.theme);

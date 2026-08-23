@@ -121,27 +121,36 @@ export const ScheduleEditorView: React.FC = () => {
           <p className="text-sm text-slate-400">Edit rotation blocks, subjects, or backup your schedule</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={handleExportJSON}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-semibold transition"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-950/70 hover:bg-blue-900/80 text-blue-200 border border-blue-500/40 text-xs font-bold transition shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
+            title="Download JSON backup file"
           >
-            <Download className="w-4 h-4 text-blue-400" /> Export JSON
+            <Download className="w-4 h-4 text-blue-400" />
+            <span>Export JSON</span>
           </button>
-          <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-semibold cursor-pointer transition">
-            <Upload className="w-4 h-4 text-cyan-400" /> Import JSON
+
+          <label
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-cyan-950/70 hover:bg-cyan-900/80 text-cyan-200 border border-cyan-500/40 text-xs font-bold cursor-pointer transition shadow-sm hover:scale-105 active:scale-95"
+            title="Restore from JSON backup file"
+          >
+            <Upload className="w-4 h-4 text-cyan-400" />
+            <span>Import JSON</span>
             <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
           </label>
+
           <button
             onClick={() => {
               if (confirm('Reset schedule and subjects to factory defaults?')) {
                 resetToDefaults();
               }
             }}
-            className="p-2 rounded-xl bg-slate-900 hover:bg-red-950 text-slate-500 hover:text-red-300 border border-slate-800 text-xs transition"
-            title="Reset Defaults"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-rose-950/50 hover:bg-rose-900/70 text-rose-300 border border-rose-500/40 text-xs font-bold transition hover:scale-105 active:scale-95 cursor-pointer"
+            title="Reset schedule & subjects to factory defaults"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4 text-rose-400" />
+            <span className="hidden sm:inline">Reset</span>
           </button>
         </div>
       </div>
