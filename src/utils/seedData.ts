@@ -67,7 +67,7 @@ export const INITIAL_SUBJECTS: Subject[] = [
   {
     id: 'subj-english',
     name: 'English',
-    color: '#64748b', // Slate
+    color: '#10b981', // Emerald Victory
     confidenceLevel: 5,
     hasRecordings: false,
     recordingsTotal: 0,
@@ -188,78 +188,5 @@ export const INITIAL_SCHEDULE: ScheduleDay[] = [
   },
 ];
 
-// Pre-loaded realistic historical logs for calendar & review testing
-export const INITIAL_DAILY_LOGS: Record<string, DailyLog> = {
-  '2026-08-22': {
-    date: '2026-08-22',
-    rotationDay: 6,
-    blockCompletions: { 'd6-2': true, 'd6-4': true, 'd6-6': true, 'd6-8': true, 'd6-10': true }, // Complete (100%)
-    focusSessions: [
-      { id: 'fs-1', subjectId: 'subj-science', startedAt: '2026-08-22T07:00:00Z', durationMinutes: 90, completed: true },
-      { id: 'fs-2', subjectId: 'subj-maths', startedAt: '2026-08-22T13:00:00Z', durationMinutes: 90, completed: true },
-    ],
-  },
-  '2026-08-21': {
-    date: '2026-08-21',
-    rotationDay: 5,
-    blockCompletions: { 'd5-2': true, 'd5-4': true, 'd5-6': true, 'd5-8': true, 'd5-10': true, 'd5-13': true }, // Complete (100%)
-    focusSessions: [
-      { id: 'fs-3', subjectId: 'subj-lang', startedAt: '2026-08-21T08:45:00Z', durationMinutes: 45, completed: true },
-      { id: 'fs-4', subjectId: 'subj-religion', startedAt: '2026-08-21T13:00:00Z', durationMinutes: 45, completed: true },
-    ],
-  },
-  '2026-08-20': {
-    date: '2026-08-20',
-    rotationDay: 4,
-    blockCompletions: { 'd4-2': true, 'd4-6': true }, // Partial (2/6 study blocks = 33%)
-    focusSessions: [
-      { id: 'fs-5', subjectId: 'subj-science', startedAt: '2026-08-20T07:00:00Z', durationMinutes: 60, completed: true },
-    ],
-  },
-  '2026-08-19': {
-    date: '2026-08-19',
-    rotationDay: 3,
-    blockCompletions: {}, // Missed (0%)
-    focusSessions: [],
-  },
-  '2026-08-18': {
-    date: '2026-08-18',
-    rotationDay: 2,
-    blockCompletions: { 'd2-2': true, 'd2-4': true, 'd2-6': true, 'd2-8': true, 'd2-10': true, 'd2-13': true }, // Complete (100%)
-    focusSessions: [
-      { id: 'fs-6', subjectId: 'subj-religion', startedAt: '2026-08-18T08:45:00Z', durationMinutes: 60, completed: true },
-      { id: 'fs-7', subjectId: 'subj-commerce', startedAt: '2026-08-18T13:00:00Z', durationMinutes: 60, completed: true },
-    ],
-  },
-  '2026-08-17': {
-    date: '2026-08-17',
-    rotationDay: 1,
-    blockCompletions: { 'd1-2': true, 'd1-4': true, 'd1-6': true, 'd1-8': true, 'd1-10': true }, // Complete (83%)
-    focusSessions: [
-      { id: 'fs-8', subjectId: 'subj-history', startedAt: '2026-08-17T08:45:00Z', durationMinutes: 60, completed: true },
-      { id: 'fs-9', subjectId: 'subj-ict', startedAt: '2026-08-17T13:00:00Z', durationMinutes: 60, completed: true },
-    ],
-  },
-  '2026-08-16': {
-    date: '2026-08-16',
-    rotationDay: 7,
-    blockCompletions: { 'd7-1': true, 'd7-3': true, 'd7-6': true }, // Complete (100%)
-    focusSessions: [
-      { id: 'fs-10', subjectId: 'subj-maths', startedAt: '2026-08-16T09:00:00Z', durationMinutes: 45, completed: true },
-    ],
-  },
-  '2026-08-15': {
-    date: '2026-08-15',
-    rotationDay: 6,
-    blockCompletions: { 'd6-2': true, 'd6-6': true }, // Partial (40%)
-    focusSessions: [
-      { id: 'fs-11', subjectId: 'subj-science', startedAt: '2026-08-15T07:00:00Z', durationMinutes: 90, completed: true },
-    ],
-  },
-  '2026-08-14': {
-    date: '2026-08-14',
-    rotationDay: 5,
-    blockCompletions: {}, // Missed (0%)
-    focusSessions: [],
-  },
-};
+// Empty initial logs — all tracking begins fresh from launch day (Aug 24)
+export const INITIAL_DAILY_LOGS: Record<string, DailyLog> = {};

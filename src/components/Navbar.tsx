@@ -13,6 +13,7 @@ import {
   Cloud,
   CloudOff,
   RefreshCw,
+  Hourglass,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import type { TabType } from '../context/AppContext';
@@ -55,6 +56,7 @@ export const Navbar: React.FC = () => {
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'hero', label: 'Right Now', icon: <Clock className="w-4 h-4" /> },
+    { id: 'countdown', label: 'Countdown', icon: <Hourglass className="w-4 h-4" /> },
     { id: 'calendar', label: 'Calendar', icon: <CalendarDays className="w-4 h-4" /> },
     {
       id: 'timer',
@@ -72,7 +74,10 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo & Main Title */}
-          <div className="flex items-center gap-3">
+          <div
+            onClick={() => setActiveTab('hero')}
+            className="flex items-center gap-3 cursor-pointer select-none"
+          >
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-blue-500/20">
               OL
             </div>
@@ -87,11 +92,15 @@ export const Navbar: React.FC = () => {
           {/* Prominent Live Exam Countdown: Days, Hours, Minutes, Seconds */}
           <div className="flex items-center gap-2">
             <div
-              className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl border transition shadow-sm ${
+              onClick={() => setActiveTab('countdown')}
+              className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl border transition shadow-sm cursor-pointer hover:border-amber-400/80 ${
                 isIntensified
                   ? 'bg-gradient-to-r from-amber-950/90 via-rose-950/90 to-amber-950/90 border-amber-500/80 text-amber-200 shadow-amber-500/20 font-black'
-                  : 'bg-slate-900 border-slate-800 text-slate-200'
+                  : activeTab === 'countdown'
+                  ? 'bg-blue-950/80 border-blue-500 text-blue-100 shadow-blue-500/20'
+                  : 'bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800'
               }`}
+              title="Click to open Full Countdown View"
             >
               <Flag className={`w-4 h-4 ${isIntensified ? 'text-amber-400 fill-amber-400 animate-pulse' : 'text-blue-400'}`} />
               
@@ -120,7 +129,10 @@ export const Navbar: React.FC = () => {
               </div>
 
               <button
-                onClick={() => setIsEditingExamDate(!isEditingExamDate)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingExamDate(!isEditingExamDate);
+                }}
                 className="p-1 text-slate-400 hover:text-slate-100 transition"
                 title="Configure Exam Date"
               >

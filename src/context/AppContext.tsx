@@ -2,13 +2,26 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import type { ReactNode } from 'react';
 import type { Subject, ScheduleDay, Block, DailyLog, FocusSession } from '../types';
 import { INITIAL_SUBJECTS, INITIAL_SCHEDULE, INITIAL_DAILY_LOGS } from '../utils/seedData';
-import { getFormattedDateString, isBlockChecked, getRotationDayForDate } from '../utils/scheduleEngine';
+import { getFormattedDateString, isBlockChecked, getRotationDayForDate, ROTATION_ANCHOR_DATE } from '../utils/scheduleEngine';
 import { audioSynth } from '../utils/audio';
 import { triggerConfetti } from '../components/Confetti';
 import { supabase } from '../utils/supabaseClient';
 
-export type TabType = 'hero' | 'timer' | 'backlog' | 'subjects' | 'schedule' | 'review' | 'calendar';
+export type TabType = 'hero' | 'countdown' | 'calendar' | 'timer' | 'backlog' | 'subjects' | 'schedule' | 'review';
 export type CloudSyncStatus = 'synced' | 'syncing' | 'offline';
+
+// Helper to filter out any historical dummy logs before the app launch anchor date
+const sanitizeDailyLogs = (logs: Record<string, DailyLog> | undefined): Record<string, DailyLog> => {
+  if (!logs || typeof logs !== 'object') return {};
+  const anchorStr = getFormattedDateString(ROTATION_ANCHOR_DATE);
+  const clean: Record<string, DailyLog> = {};
+  Object.entries(logs).forEach(([dateStr, log]) => {
+    if (dateStr >= anchorStr && log) {
+      clean[dateStr] = log;
+    }
+  });
+  return clean;
+};
 
 interface AppContextType {
   rotationDay: number;
@@ -95,7 +108,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     savedState?.schedule && Array.isArray(savedState.schedule) ? savedState.schedule : INITIAL_SCHEDULE
   );
   const [dailyLogs, setDailyLogs] = useState<Record<string, DailyLog>>(
-    savedState?.dailyLogs || INITIAL_DAILY_LOGS
+    sanitizeDailyLogs(savedState?.dailyLogs || INITIAL_DAILY_LOGS)
   );
   const [activeTab, setActiveTab] = useState<TabType>('hero');
   const [theme, setThemeState] = useState<'dark' | 'light'>(
@@ -224,7 +237,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (cloud.examDate) setExamDateState(cloud.examDate);
           if (cloud.subjects && Array.isArray(cloud.subjects)) setSubjects(cloud.subjects);
           if (cloud.schedule && Array.isArray(cloud.schedule)) setSchedule(cloud.schedule);
-          if (cloud.dailyLogs && typeof cloud.dailyLogs === 'object') setDailyLogs(cloud.dailyLogs);
+          if (cloud.dailyLogs && typeof cloud.dailyLogs === 'object') setDailyLogs(sanitizeDailyLogs(cloud.dailyLogs));
           if (cloud.theme) setThemeState(cloud.theme);
           setCloudSyncStatus('synced');
         } else {
@@ -266,7 +279,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             if (remote.examDate && typeof remote.examDate === 'string') setExamDateState(remote.examDate);
             if (remote.subjects && Array.isArray(remote.subjects)) setSubjects(remote.subjects as Subject[]);
             if (remote.schedule && Array.isArray(remote.schedule)) setSchedule(remote.schedule as ScheduleDay[]);
-            if (remote.dailyLogs && typeof remote.dailyLogs === 'object') setDailyLogs(remote.dailyLogs as Record<string, DailyLog>);
+            if (remote.dailyLogs && typeof remote.dailyLogs === 'object') setDailyLogs(sanitizeDailyLogs(remote.dailyLogs as Record<string, DailyLog>));
             if (remote.theme && (remote.theme === 'dark' || remote.theme === 'light')) setThemeState(remote.theme);
             setCloudSyncStatus('synced');
           }

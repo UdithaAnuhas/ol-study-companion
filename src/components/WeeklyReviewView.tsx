@@ -1,29 +1,36 @@
 import React from 'react';
 import { Calendar, CheckCircle2, Clock, Flame, ArrowUpRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { getFormattedDateString } from '../utils/scheduleEngine';
+import { getFormattedDateString, ROTATION_ANCHOR_DATE } from '../utils/scheduleEngine';
 
 export const WeeklyReviewView: React.FC = () => {
   const { dailyLogs, subjects } = useApp();
 
-  // Generate last 7 calendar days
   const today = new Date();
+  const anchorStr = getFormattedDateString(ROTATION_ANCHOR_DATE);
+  const todayStr = getFormattedDateString(today);
+
+  // Generate last 7 calendar days
   const past7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(today);
     d.setDate(d.getDate() - (6 - i));
     const dateStr = getFormattedDateString(d);
+    const isPreLaunch = dateStr < anchorStr;
+    const isToday = dateStr === todayStr;
     return {
       dateStr,
       dayName: d.toLocaleDateString([], { weekday: 'short' }),
       formattedDate: d.toLocaleDateString([], { month: 'short', day: 'numeric' }),
-      log: dailyLogs[dateStr],
+      log: isPreLaunch ? undefined : dailyLogs[dateStr],
+      isPreLaunch,
+      isToday,
     };
   });
 
-  // Calculate total focus minutes across all 7 days
+  // Calculate total focus minutes across all tracked days (from anchor date forward)
   let totalWeeklyFocusMins = 0;
-  Object.values(dailyLogs).forEach((log) => {
-    if (log && log.focusSessions) {
+  Object.entries(dailyLogs).forEach(([dateStr, log]) => {
+    if (dateStr >= anchorStr && log && log.focusSessions) {
       log.focusSessions.forEach((fs) => {
         if (fs.completed) totalWeeklyFocusMins += fs.durationMinutes;
       });
@@ -36,6 +43,18 @@ export const WeeklyReviewView: React.FC = () => {
   const weakSubjects = subjects
     .filter((s) => !s.isFinished && s.confidenceLevel <= 2)
     .sort((a, b) => a.confidenceLevel - b.confidenceLevel);
+
+  // Avoidance feedback based strictly on tracked past days (excluding pre-launch and current in-progress day)
+  const trackedPastDays = past7Days.filter((d) => !d.isPreLaunch && !d.isToday);
+  const missedTrackedDays = trackedPastDays.filter(
+    (d) => !d.log || Object.values(d.log.blockCompletions || {}).filter(Boolean).length === 0
+  );
+
+  let avoidanceFeedback = 'Tracking starts today! Welcome 🚀';
+  if (trackedPastDays.length > 0) {
+    avoidanceFeedback =
+      missedTrackedDays.length === 0 ? 'Great consistency!' : 'Rest days spotted — totally normal';
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
@@ -65,9 +84,7 @@ export const WeeklyReviewView: React.FC = () => {
           <div>
             <p className="text-xs text-slate-400 font-semibold">Avoidance Pattern Spotter</p>
             <p className="text-sm font-bold text-amber-300">
-              {past7Days.filter((d) => !d.log || Object.keys(d.log.blockCompletions).length === 0).length === 0
-                ? 'Great consistency!'
-                : 'Rest days spotted — totally normal'}
+              {avoidanceFeedback}
             </p>
           </div>
         </div>
@@ -98,25 +115,41 @@ export const WeeklyReviewView: React.FC = () => {
               <div
                 key={d.dateStr}
                 className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 ${
-                  hasActivity
+                  d.isPreLaunch
+                    ? 'bg-slate-950/40 border-slate-900 opacity-40'
+                    : d.isToday
+                    ? 'bg-blue-950/30 border-blue-500/40 shadow-sm shadow-blue-500/20'
+                    : hasActivity
                     ? 'bg-blue-950/20 border-blue-500/30'
                     : 'bg-slate-950/60 border-slate-800 opacity-60'
                 }`}
               >
                 <div className="text-center">
-                  <p className="text-xs font-bold text-slate-200">{d.dayName}</p>
+                  <p className={`text-xs font-bold ${d.isToday ? 'text-blue-300' : 'text-slate-200'}`}>{d.dayName}</p>
                   <p className="text-[10px] text-slate-400">{d.formattedDate}</p>
                 </div>
 
                 <div className="text-center">
-                  <span className={`text-xl font-black font-mono ${hasActivity ? 'text-blue-400' : 'text-slate-600'}`}>
-                    {completedCount}
+                  <span
+                    className={`text-xl font-black font-mono ${
+                      d.isPreLaunch ? 'text-slate-700' : hasActivity ? 'text-blue-400' : 'text-slate-600'
+                    }`}
+                  >
+                    {d.isPreLaunch ? '—' : completedCount}
                   </span>
                   <p className="text-[10px] text-slate-400">blocks</p>
                 </div>
 
                 <div className="text-center">
-                  {hasActivity ? (
+                  {d.isPreLaunch ? (
+                    <span className="px-2 py-0.5 rounded bg-slate-900/60 text-slate-500 text-[10px] border border-slate-800/60">
+                      Pre-launch
+                    </span>
+                  ) : d.isToday ? (
+                    <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">
+                      {hasActivity ? 'Active' : 'In Progress'}
+                    </span>
+                  ) : hasActivity ? (
                     <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
                       Active
                     </span>

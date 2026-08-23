@@ -2,6 +2,7 @@ import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navbar';
 import { HeroRightNow } from './components/HeroRightNow';
+import { ExamCountdownView } from './components/ExamCountdownView';
 import { CalendarView } from './components/CalendarView';
 import { FocusTimerView } from './components/FocusTimerView';
 import { BacklogTrackerView } from './components/BacklogTrackerView';
@@ -15,6 +16,7 @@ const MainContent: React.FC = () => {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {activeTab === 'hero' && <HeroRightNow />}
+      {activeTab === 'countdown' && <ExamCountdownView />}
       {activeTab === 'calendar' && <CalendarView />}
       {activeTab === 'timer' && <FocusTimerView />}
       {activeTab === 'backlog' && <BacklogTrackerView />}
