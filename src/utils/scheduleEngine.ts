@@ -5,8 +5,8 @@ export const TICK_GRACE_MINUTES = 60;   // 60-minute post-block grace window for
 export const UNTICK_GRACE_MINUTES = 30; // 30-minute window after ticking a block to untick it
 
 // --- AUTO-ROTATION ANCHOR ---
-// Monday 25 August 2026 = Day 1. The rotation cycles 1→2→3→4→5→6→7→1→2→... automatically.
-export const ROTATION_ANCHOR_DATE = new Date(2026, 7, 25); // Month is 0-indexed (7 = August)
+// Sunday 24 August 2026 = Day 1. The rotation cycles 1→2→3→4→5→6→7→1→2→... automatically.
+export const ROTATION_ANCHOR_DATE = new Date(2026, 7, 24); // Month is 0-indexed (7 = August)
 
 /**
  * Calculates which rotation day (1–7) a given date falls on,
