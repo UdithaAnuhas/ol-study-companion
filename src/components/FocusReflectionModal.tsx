@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Star, CheckCircle2, MessageSquare, Flame, X } from 'lucide-react';
+import { Sparkles, Star, CheckCircle2, MessageSquare, Flame, AlertCircle, BookOpen, Check } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const FocusReflectionModal: React.FC = () => {
@@ -12,10 +12,18 @@ export const FocusReflectionModal: React.FC = () => {
 
   const [notes, setNotes] = useState<string>('');
   const [focusRating, setFocusRating] = useState<number>(5);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
+
+  // Sync state whenever a new session finishes
+  React.useEffect(() => {
+    if (pendingReflectionSession) {
+      setSelectedSubjectIds([pendingReflectionSession.subjectId]);
+      setNotes('');
+      setFocusRating(5);
+    }
+  }, [pendingReflectionSession]);
 
   if (!pendingReflectionSession) return null;
-
-  const subject = subjects.find((s) => s.id === pendingReflectionSession.subjectId);
 
   const ratingDescriptions: Record<number, { label: string; color: string }> = {
     1: { label: 'Distracted (Lost focus often)', color: 'text-rose-400' },
@@ -25,73 +33,127 @@ export const FocusReflectionModal: React.FC = () => {
     5: { label: 'Laser Focused (100% Locked in flow state! ⚡)', color: 'text-emerald-400' },
   };
 
-  const handleSave = () => {
-    saveSessionReflection(pendingReflectionSession.id, notes.trim(), focusRating);
-    setPendingReflectionSession(null);
+  const isNotesValid = notes.trim().length > 0;
+  const hasSubjects = selectedSubjectIds.length > 0;
+  const canSave = isNotesValid && hasSubjects;
+
+  const toggleSubject = (subjectId: string) => {
+    setSelectedSubjectIds((prev) => {
+      if (prev.includes(subjectId)) {
+        if (prev.length === 1) return prev; // Keep at least one subject selected
+        return prev.filter((id) => id !== subjectId);
+      } else {
+        return [...prev, subjectId];
+      }
+    });
   };
 
-  const handleSkip = () => {
-    saveSessionReflection(pendingReflectionSession.id, '', focusRating);
+  const handleSave = () => {
+    if (!canSave) return;
+    saveSessionReflection(
+      pendingReflectionSession.id,
+      notes.trim(),
+      focusRating,
+      selectedSubjectIds
+    );
     setPendingReflectionSession(null);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-slate-900 border-2 border-blue-500/50 shadow-2xl shadow-blue-500/20 p-6 sm:p-8 space-y-6">
-        {/* Glow effect */}
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Close/Skip button */}
-        <button
-          onClick={handleSkip}
-          className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
-          title="Close / Skip"
-        >
-          <X className="w-4 h-4" />
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-slate-900 border-2 border-blue-500/60 shadow-2xl shadow-blue-500/25 p-6 sm:p-8 space-y-6 my-8">
+        {/* Glow effects */}
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-48 h-48 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold uppercase tracking-wider shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Session Completed!</span>
+            <span>Timer Complete • Deep Work Logged!</span>
           </div>
 
           <h3 className="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight">
-            Great Work! 🎯
+            Session Reflection 🎯
           </h3>
 
           <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-300">
-            {subject && (
-              <span className="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: subject.color }} />
-                {subject.name}
-              </span>
-            )}
-            <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-amber-300">
-              {pendingReflectionSession.durationMinutes} Minutes Focused
+            <span className="bg-slate-950 px-3 py-1 rounded-xl border border-slate-800 font-mono text-amber-300 font-bold">
+              ⏱️ {pendingReflectionSession.durationMinutes} Minutes Focused Study
             </span>
           </div>
         </div>
 
-        {/* Question 1: What did you do? */}
+        {/* Question 1: Mark Subjects Studied */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <BookOpen className="w-4 h-4 text-blue-400" />
+              Mark Subject(s) Studied in this Session: <span className="text-amber-400 font-black">*</span>
+            </label>
+            <span className="text-[10px] text-slate-400 font-semibold">
+              {selectedSubjectIds.length} Selected
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {subjects.map((s) => {
+              const isSelected = selectedSubjectIds.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => toggleSubject(s.id)}
+                  className={`flex items-center justify-between p-2 rounded-xl border text-xs font-bold transition transform active:scale-95 text-left ${
+                    isSelected
+                      ? 'bg-blue-600/20 border-blue-400 text-blue-200 shadow-sm'
+                      : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                    <span className="truncate">{s.name}</span>
+                  </div>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Question 2: Mandatory Description of what was accomplished */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-blue-400" />
-            What did you accomplish in this session?
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4 text-blue-400" />
+              What did you accomplish in this session? <span className="text-amber-400 font-black">*</span>
+            </label>
+            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+              Required
+            </span>
+          </div>
+
           <textarea
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="e.g. Solved 10 Maths Algebra questions, completed Science Unit 3 notes, watched ICT recording..."
-            className="w-full bg-slate-950 text-slate-100 text-xs sm:text-sm p-3.5 rounded-2xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-400 resize-none transition"
+            placeholder="Write what you completed (e.g. Solved 10 Past Paper questions, reviewed Science Unit 4, wrote summary notes...)"
+            className={`w-full bg-slate-950 text-slate-100 text-xs sm:text-sm p-3.5 rounded-2xl border transition resize-none focus:outline-none focus:ring-2 ${
+              !isNotesValid
+                ? 'border-amber-500/40 focus:ring-amber-500/50 placeholder:text-slate-500'
+                : 'border-blue-500/60 focus:ring-blue-500 placeholder:text-slate-500'
+            }`}
             autoFocus
           />
+          {!isNotesValid && (
+            <p className="text-[11px] text-amber-300/80 font-medium flex items-center gap-1">
+              <AlertCircle className="w-3 h-3 text-amber-400 shrink-0" />
+              Please describe what you completed to save and log this study session.
+            </p>
+          )}
         </div>
 
-        {/* Question 2: Focus Rating */}
+        {/* Question 3: Focus Rating */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
@@ -128,22 +190,20 @@ export const FocusReflectionModal: React.FC = () => {
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3 pt-2">
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="w-1/3 py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
-          >
-            Skip Notes
-          </button>
+        {/* Action Button: Strictly save when notes & subjects are filled */}
+        <div className="pt-2">
           <button
             type="button"
             onClick={handleSave}
-            className="w-2/3 py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 transform active:scale-95"
+            disabled={!canSave}
+            className={`w-full py-3.5 px-6 rounded-2xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-lg ${
+              canSave
+                ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white shadow-blue-500/25 transform active:scale-95 cursor-pointer'
+                : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed opacity-60'
+            }`}
           >
             <CheckCircle2 className="w-4 h-4" />
-            Save Session Reflection
+            <span>Complete & Save Session Reflection</span>
           </button>
         </div>
       </div>

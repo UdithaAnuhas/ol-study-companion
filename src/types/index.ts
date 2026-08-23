@@ -29,6 +29,7 @@ export interface ScheduleDay {
 export interface FocusSession {
   id: string;
   subjectId: string;
+  subjectIds?: string[]; // All subjects studied/covered during this session
   startedAt: string; // ISO string
   durationMinutes: number;
   completed: boolean;

@@ -52,7 +52,7 @@ interface AppContextType {
   resetFocusTimer: () => void;
   completeFocusTimerEarly: () => void;
   setFocusTimerPreset: (mins: number) => void;
-  saveSessionReflection: (sessionId: string, notes: string, focusRating: number) => void;
+  saveSessionReflection: (sessionId: string, notes: string, focusRating: number, subjectIds?: string[]) => void;
 
   // Actions
   toggleBlockCompletion: (date: string, blockId: string) => void;
@@ -201,13 +201,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTimerSecondsLeft(mins * 60);
     setTimerIsRunning(false);
   };
-  const saveSessionReflection = (sessionId: string, notes: string, focusRating: number) => {
+  const saveSessionReflection = (sessionId: string, notes: string, focusRating: number, subjectIds?: string[]) => {
     const todayStr = getFormattedDateString();
     setDailyLogs((prev) => {
       const currentLog = prev[todayStr];
       if (!currentLog) return prev;
       const updatedSessions = currentLog.focusSessions.map((fs) =>
-        fs.id === sessionId ? { ...fs, notes, focusRating } : fs
+        fs.id === sessionId ? { ...fs, notes, focusRating, subjectIds: subjectIds || [fs.subjectId] } : fs
       );
       return {
         ...prev,

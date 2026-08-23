@@ -208,7 +208,7 @@ export const FocusTimerView: React.FC = () => {
             {timerIsRunning ? (
               <button
                 onClick={pauseFocusTimer}
-                className="flex items-center gap-2 px-7 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/20 transition transform active:scale-95"
+                className="flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/20 transition transform active:scale-95"
               >
                 <Pause className="w-4 h-4 fill-current" />
                 Pause Focus Session
@@ -216,31 +216,19 @@ export const FocusTimerView: React.FC = () => {
             ) : (
               <button
                 onClick={startFocusTimer}
-                className="flex items-center gap-2 px-7 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-xl shadow-blue-500/30 transition transform active:scale-95"
+                className="flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-xl shadow-blue-500/30 transition transform active:scale-95"
               >
                 <Play className="w-4 h-4 fill-current" />
                 Start Focus Session
               </button>
             )}
 
-            {/* Finish Early & Log Reflection Button */}
-            {(timerIsRunning || timerSecondsLeft < timerTotalSeconds) && (
-              <button
-                onClick={completeFocusTimerEarly}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 font-bold text-xs transition"
-                title="Finished early? Log and write your session reflection now"
-              >
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Finish & Reflect</span>
-              </button>
-            )}
-
             <button
               onClick={resetFocusTimer}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 transition"
+              className="p-3.5 rounded-2xl bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 transition"
               title="Reset Timer"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -273,14 +261,34 @@ export const FocusTimerView: React.FC = () => {
                   className="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-2.5 flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: subj?.color || '#3b82f6' }}
-                      />
-                      <span className="font-bold text-slate-200 text-xs">
-                        {subj?.name || 'General Study'}
-                      </span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {session.subjectIds && session.subjectIds.length > 0 ? (
+                        session.subjectIds.map((sId) => {
+                          const sObj = subjects.find((s) => s.id === sId);
+                          return (
+                            <span
+                              key={sId}
+                              className="inline-flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 text-[11px] font-bold text-slate-200"
+                            >
+                              <span
+                                className="w-2 h-2 rounded-full"
+                                style={{ backgroundColor: sObj?.color || '#3b82f6' }}
+                              />
+                              <span>{sObj?.name || 'Subject'}</span>
+                            </span>
+                          );
+                        })
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: subj?.color || '#3b82f6' }}
+                          />
+                          <span className="font-bold text-slate-200 text-xs">
+                            {subj?.name || 'General Study'}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
