@@ -7,7 +7,7 @@ import type {
   WeeklyReviewData,
   MonthlyReviewData,
 } from '../types';
-import { getFormattedDateString, isBlockChecked } from './scheduleEngine';
+import { getFormattedDateString, isBlockChecked, ROTATION_ANCHOR_DATE } from './scheduleEngine';
 
 // --- CONFIGURABLE COMPLETION RULE CONSTANTS ---
 export const COMPLETE_THRESHOLD_PERCENT = 80; // 80% or more study blocks done = Complete
@@ -80,6 +80,18 @@ export function evaluateDayStatus(
   currentDate: Date = new Date()
 ): DayStatus {
   const todayStr = getFormattedDateString(currentDate);
+  const anchorStr = getFormattedDateString(ROTATION_ANCHOR_DATE);
+
+  // Days before the app launch anchor are not tracked — treat as empty (future)
+  if (dateStr < anchorStr) {
+    return {
+      date: dateStr,
+      status: 'future',
+      completionPercent: 0,
+      completedStudyBlocks: 0,
+      totalStudyBlocks: 0,
+    };
+  }
 
   if (!scheduleDay || !scheduleDay.blocks || scheduleDay.blocks.length === 0) {
     const isPast = dateStr < todayStr;
