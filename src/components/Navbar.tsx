@@ -147,24 +147,11 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Rotation Selector & Streak */}
+          {/* Rotation & Streak */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Rotation Selector */}
-            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900 border border-slate-800">
-              <span className="hidden md:inline text-xs font-semibold text-slate-300 pl-2">
-                Rotation:
-              </span>
-              <select
-                value={rotationDay}
-                onChange={(e) => setRotationDay(Number(e.target.value))}
-                className="bg-blue-950/80 text-blue-200 font-bold text-xs px-2.5 py-1.5 rounded-xl border border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              >
-                {[1, 2, 3, 4, 5, 6, 7].map((dayNum) => (
-                  <option key={dayNum} value={dayNum} className="bg-slate-900 text-slate-200">
-                    Day {dayNum} {dayNum === 6 ? '(Papers)' : dayNum === 7 ? '(Light)' : ''}
-                  </option>
-                ))}
-              </select>
+            {/* Auto-Computed Rotation Day Badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-blue-950/60 border border-blue-500/30 text-xs font-bold text-blue-200">
+              <span>📅 Day {rotationDay}{rotationDay === 6 ? ' (Papers)' : rotationDay === 7 ? ' (Light)' : ''}</span>
             </div>
 
             {/* Streak Badge */}
