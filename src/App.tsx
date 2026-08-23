@@ -38,9 +38,19 @@ export function App() {
 
         {/* Quiet Footer */}
         <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-400">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p>O/L Exam Study Companion • Built for December Success</p>
-            <p className="flex items-center gap-2">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="flex items-center gap-1.5 justify-center sm:justify-start">
+              <span>O/L Exam Study Companion • Crafted by</span>
+              <a
+                href="https://uditha-anuhas.vercel.app/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-400 hover:text-blue-300 font-bold transition underline underline-offset-4 decoration-blue-500/50 hover:decoration-blue-400"
+              >
+                Uditha Anuhas ↗
+              </a>
+            </p>
+            <p className="flex items-center gap-2 justify-center sm:justify-end">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
               100% Offline Ready (Data stored in LocalStorage)
             </p>
