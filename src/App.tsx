@@ -50,9 +50,9 @@ export function App() {
                 Uditha Anuhas ↗
               </a>
             </p>
-            <p className="flex items-center gap-2 justify-center sm:justify-end">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
-              100% Offline Ready (Data stored in LocalStorage)
+            <p className="flex items-center gap-2 justify-center sm:justify-end text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+              <span>Real-Time Cloud Synced</span>
             </p>
           </div>
         </footer>
